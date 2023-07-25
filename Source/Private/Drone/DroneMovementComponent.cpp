@@ -17,7 +17,6 @@ void UDroneMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	//ResetForces();
 	Hover();
-	HandleMaximumSpeed();
 	UpdateVelocity();
 	UpdateSpeed();
 	UpdateMass();
@@ -32,22 +31,22 @@ void UDroneMovementComponent::MoveUp(float InForce)
 	ApplyForce(UpForce);
 }
 
-void UDroneMovementComponent::MoveForward(float InForce)
+void UDroneMovementComponent::RotatePitch(float InForce)
 {
-	// Cant go faster then max speed 
-	if ((GetOwner()->GetActorForwardVector() * Velocity).Size() >= MaxSpeed)
-		return;
-	ForwardForce = GetOwner()->GetActorForwardVector() * InForce * Acceleration;
-	ApplyForce(ForwardForce);
+	PitchTorque = FVector(0, InForce * RotationAcceleration, 0);
+	ApplyTorque(PitchTorque);
 }
 
-void UDroneMovementComponent::MoveRight(float InForce)
+void UDroneMovementComponent::RotateYaw(float InForce)
 {
-	// Cant go faster then max speed 
-	if ((GetOwner()->GetActorRightVector() * Velocity).Size() >= MaxSpeed)
-		return;
-	RightForce = GetOwner()->GetActorRightVector() * InForce * Acceleration;
-	ApplyForce(RightForce);
+	YawTorque = FVector(0, 0, InForce * RotationAcceleration);
+	ApplyTorque(YawTorque);
+}
+
+void UDroneMovementComponent::RotateRoll(float InForce)
+{
+	RollTorque = FVector(InForce * RotationAcceleration, 0, 0);
+	ApplyTorque(RollTorque);
 }
 
 void UDroneMovementComponent::Hover()
@@ -66,6 +65,15 @@ void UDroneMovementComponent::ApplyForce(const FVector& Force)
 	}
 }
 
+void UDroneMovementComponent::ApplyTorque(const FVector& InTorque)
+{
+	UPrimitiveComponent* PrimitiveComp = Cast<UPrimitiveComponent>(UpdatedComponent);
+	if (PrimitiveComp)
+	{
+		PrimitiveComp->AddTorqueInRadians(InTorque);
+	}
+}
+
 void UDroneMovementComponent::UpdateVelocity()
 {
 	Velocity = UpdatedComponent->GetComponentVelocity();
@@ -75,11 +83,6 @@ void UDroneMovementComponent::UpdateSpeed()
 {
 	Speed = Velocity.Size();
 	Speed /= 100;
-}
-
-void UDroneMovementComponent::HandleMaximumSpeed()
-{
-
 }
 
 void UDroneMovementComponent::ResetForces()

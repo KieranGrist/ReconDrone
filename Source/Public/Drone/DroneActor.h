@@ -29,10 +29,13 @@ public:
 	class UInputMappingContext* DefaultMappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputAction* MoveForwardAction;
+	class UInputAction* RotatePitchAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	class UInputAction* MoveRightAction;
+	class UInputAction* RotateYawAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	class UInputAction* RotateRollAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* MoveUpAction;
@@ -46,7 +49,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	void MoveForward(const FInputActionValue& InInputActionValue);
-	void MoveRight(const FInputActionValue& InInputActionValue);
+	void RotatePitch(const FInputActionValue& InInputActionValue);
+	void RotateRoll(const FInputActionValue& InInputActionValue);
+	void RotateYaw(const FInputActionValue& InInputActionValue);
 	void MoveUp(const FInputActionValue& InInputActionValue);
 };

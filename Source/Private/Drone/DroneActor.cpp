@@ -51,30 +51,38 @@ void ADroneActor::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
     Super::SetupPlayerInputComponent(PlayerInputComponent);
     if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
     {
-        // Bind the input functions to corresponding actions
-        EnhancedInputComponent->BindAction(MoveForwardAction, ETriggerEvent::Triggered, this, &ADroneActor::MoveForward);
-        EnhancedInputComponent->BindAction(MoveRightAction, ETriggerEvent::Triggered, this, &ADroneActor::MoveRight);
+        EnhancedInputComponent->BindAction(RotatePitchAction, ETriggerEvent::Triggered, this, &ADroneActor::RotatePitch);
+        EnhancedInputComponent->BindAction(RotateYawAction, ETriggerEvent::Triggered, this, &ADroneActor::RotateYaw);
+        EnhancedInputComponent->BindAction(RotateRollAction, ETriggerEvent::Triggered, this, &ADroneActor::RotateRoll);
         EnhancedInputComponent->BindAction(MoveUpAction, ETriggerEvent::Triggered, this, &ADroneActor::MoveUp);
     }
 }
 
-void ADroneActor::MoveForward(const FInputActionValue& InInputActionValue)
+void ADroneActor::RotatePitch(const FInputActionValue& InInputActionValue)
 {
-    // Call the MoveForward function in the UDroneMovementComponent
     if (MovementComponent)
     {
         float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-        MovementComponent->MoveForward(value);
+        MovementComponent->RotatePitch(value);
     }
 }
 
-void ADroneActor::MoveRight(const FInputActionValue& InInputActionValue)
+void ADroneActor::RotateRoll(const FInputActionValue& InInputActionValue)
+{
+    if (MovementComponent)
+    {
+        float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+        MovementComponent->RotateRoll(value);
+    }
+}
+
+void ADroneActor::RotateYaw(const FInputActionValue& InInputActionValue)
 {
     // Call the MoveRight function in the UDroneMovementComponent
     if (MovementComponent)
     {
         float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-        MovementComponent->MoveRight(value);
+        MovementComponent->RotateYaw(value);
     }
 }
 
