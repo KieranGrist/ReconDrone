@@ -9,78 +9,93 @@
 class ADroneActor;
 
 /**
- * 
+ *
  */
 UCLASS()
 class RECONDRONE_API UDroneMovementComponent : public UPawnMovementComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    UDroneMovementComponent();
+	UDroneMovementComponent();
 
-    // Settable properties
-    UPROPERTY(EditAnywhere, Category = "Drone Movement")
-    float MaxSpeed = 1000.0f;
+	// Settable properties
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	float MaxSpeed = 1000.0f;
 
-    UPROPERTY(EditAnywhere, Category = "Drone Movement")
-    float Acceleration = 500.0f;
-    
-    UPROPERTY(EditAnywhere, Category = "Drone Movement")
-    float RotationAcceleration = 500.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	float Acceleration = 500.0f;
 
-    UPROPERTY(EditAnywhere, Category = "Drone Movement")
-    float Deceleration = 500.0f;
-    
-    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	float RotationAcceleration = 500.0f;
 
-    // 1 is maximum 0 is minimum
-    void MoveUp(float InForce);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	float Deceleration = 500.0f;
 
-    // Adjust the drones
-    void RotatePitch(float InForce);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	float Mass = 1;
 
-    // Adjust the drones Yaw 
-    void RotateYaw(float InForce);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	float LinearDamping = 6;
 
-    // Adjust the drones Roll
-    void RotateRoll(float InForce);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	float AngularDamping = 6;
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-    protected:
-    //Debug
-    UPROPERTY(VisibleAnywhere, Category = "Drone Movement|Debug")
-    FVector	UpForce;
+	virtual void InitializeComponent() override;
 
-    UPROPERTY(VisibleAnywhere, Category = "Drone Movement|Debug")
-    FVector RightForce;
+	// 1 is maximum 0 is minimum
+	void MoveUp(float InForce);
 
-    UPROPERTY(VisibleAnywhere, Category = "Drone Movement|Debug")
-    FVector ForwardForce;
-   
-    UPROPERTY(VisibleAnywhere, Category = "Drone Movement|Debug")
-    FVector HoverForce;
+	// Adjust the drones
+	void RotatePitch(float InForce);
 
-    UPROPERTY(VisibleAnywhere, Category = "Drone Movement|Debug")
-    FVector	YawTorque;
+	// Adjust the drones Yaw 
+	void RotateYaw(float InForce);
 
-    UPROPERTY(VisibleAnywhere, Category = "Drone Movement|Debug")
-    FVector PitchTorque;
+	// Adjust the drones Roll
+	void RotateRoll(float InForce);
+	
+	void StabiliseRotation();
 
-    UPROPERTY(VisibleAnywhere, Category = "Drone Movement|Debug")
-    FVector RollTorque;
-   
-    UPROPERTY(VisibleAnywhere, Category = "Drone Movement|Debug")
-    float Speed;
+protected:
+	//Debug
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	FVector	UpForce;
 
-    UPROPERTY(VisibleAnywhere, Category = "Drone Movement|Debug")
-    float Mass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	FVector RightForce;
 
-    void Hover();
-    void ApplyForce(const FVector& InForce);
-    void ApplyTorque(const FVector& InTorque);
-    void UpdateVelocity();
-    void UpdateSpeed();
-    void ResetForces();
-    void UpdateMass();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	FVector ForwardForce;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	FVector HoverForce;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	FVector	YawTorque;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	FVector PitchTorque;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	FVector RollTorque;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	FVector Torque;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	float Speed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	float RotationSpeed;
+
+	void Hover();
+	void ApplyForce(const FVector& InForce, bool InAccelerationChange = false);
+	void ApplyTorque(const FVector& InTorque, bool InAccelerationChange = false);
+	void UpdateVelocity();
+	void UpdateSpeed();
+	void ResetForces();
+	void UpdateMass();
 };

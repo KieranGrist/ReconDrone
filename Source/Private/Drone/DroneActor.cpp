@@ -5,6 +5,7 @@
 #include "Drone/DroneMovementComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Kismet/GameplayStatics.h"
 
 
 ADroneActor::ADroneActor()
@@ -14,8 +15,12 @@ ADroneActor::ADroneActor()
 
     DroneMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DroneMesh"));
     DroneMesh->SetupAttachment(RootComponent);
+    DroneMesh->SetCollisionProfileName("BlockAll");
     DroneMesh->SetSimulatePhysics(true);
     DroneMesh->SetMassOverrideInKg(NAME_None, 1);
+    DroneMesh->SetNotifyRigidBodyCollision(true);
+    DroneMesh->OnComponentHit.AddUniqueDynamic(this, &ADroneActor::OnDroneHit);
+
     MovementComponent = CreateDefaultSubobject<UDroneMovementComponent>(TEXT("MovementComponent"));
   
     // Set default auto possess player
@@ -39,6 +44,16 @@ void ADroneActor::BeginPlay()
     }
 }
 
+void ADroneActor::OnDroneHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+    // Check if the drone collided with something
+    if (OtherActor != nullptr && OtherActor != this)
+    {
+        // Restart the level when the drone collides with something
+        UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+    }
+}
+
 // Called every frame
 void ADroneActor::Tick(float DeltaTime)
 {
@@ -55,6 +70,7 @@ void ADroneActor::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
         EnhancedInputComponent->BindAction(RotateYawAction, ETriggerEvent::Triggered, this, &ADroneActor::RotateYaw);
         EnhancedInputComponent->BindAction(RotateRollAction, ETriggerEvent::Triggered, this, &ADroneActor::RotateRoll);
         EnhancedInputComponent->BindAction(MoveUpAction, ETriggerEvent::Triggered, this, &ADroneActor::MoveUp);
+        EnhancedInputComponent->BindAction(StabiliseRotationAction, ETriggerEvent::Triggered, this, &ADroneActor::StabiliseRotation);
     }
 }
 
@@ -93,5 +109,13 @@ void ADroneActor::MoveUp(const FInputActionValue& InInputActionValue)
     {
         float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
         MovementComponent->MoveUp(value);
+    }
+}
+
+void ADroneActor::StabiliseRotation(const FInputActionValue& InInputActionValue)
+{
+    if (MovementComponent)
+    {
+        MovementComponent->StabiliseRotation();
     }
 }

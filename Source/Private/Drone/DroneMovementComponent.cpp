@@ -22,6 +22,18 @@ void UDroneMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType
 	UpdateMass();
 }
 
+void UDroneMovementComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+	UPrimitiveComponent* PrimitiveComp = Cast<UPrimitiveComponent>(UpdatedComponent);
+	if (PrimitiveComp)
+	{
+		PrimitiveComp->SetMassOverrideInKg(NAME_None, Mass);
+		PrimitiveComp->SetLinearDamping(LinearDamping);
+		PrimitiveComp->SetAngularDamping(AngularDamping);
+	}
+}
+
 void UDroneMovementComponent::MoveUp(float InForce)
 {
 	// Cant go faster then max speed 
@@ -33,20 +45,45 @@ void UDroneMovementComponent::MoveUp(float InForce)
 
 void UDroneMovementComponent::RotatePitch(float InForce)
 {
-	PitchTorque = FVector(0, InForce * RotationAcceleration, 0);
+	PitchTorque = GetOwner()->GetActorRightVector() * InForce * RotationAcceleration;
 	ApplyTorque(PitchTorque);
 }
 
 void UDroneMovementComponent::RotateYaw(float InForce)
 {
-	YawTorque = FVector(0, 0, InForce * RotationAcceleration);
+	YawTorque = GetOwner()->GetActorUpVector() * InForce * RotationAcceleration;
 	ApplyTorque(YawTorque);
 }
 
 void UDroneMovementComponent::RotateRoll(float InForce)
 {
-	RollTorque = FVector(InForce * RotationAcceleration, 0, 0);
+	RollTorque = GetOwner()->GetActorForwardVector() * InForce * RotationAcceleration;
 	ApplyTorque(RollTorque);
+}
+
+void UDroneMovementComponent::StabiliseRotation()
+{
+	if (!UpdatedComponent || !PawnOwner)
+	{
+		return;
+	}
+
+	// Get the current rotation of the drone
+	FRotator CurrentRotation = UpdatedComponent->GetComponentRotation();
+
+	// Calculate the new rotation without pitch and roll
+	FRotator NewRotation = FRotator(0.0f, CurrentRotation.Yaw, 0.0f);
+
+	// Apply a torque force to the component to make it align with the new rotation
+	FVector TorqueForce = (NewRotation - CurrentRotation).Quaternion().GetNormalized().GetRotationAxis() * RotationAcceleration;
+
+	if (CurrentRotation.Equals(NewRotation, .2))
+	{
+		GetOwner()->SetActorRotation(NewRotation);
+		ApplyTorque(FVector::ZeroVector, true);
+		return;
+	}
+	ApplyTorque(TorqueForce);
 }
 
 void UDroneMovementComponent::Hover()
@@ -55,34 +92,45 @@ void UDroneMovementComponent::Hover()
 	ApplyForce(HoverForce);
 }
 
-void UDroneMovementComponent::ApplyForce(const FVector& Force)
+void UDroneMovementComponent::ApplyForce(const FVector& InForce, bool InSetForce)
 {
 	// Get the Primitive Component and add the force
 	UPrimitiveComponent* PrimitiveComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (PrimitiveComp)
 	{
-		PrimitiveComp->AddForce(Force);
+		if (InSetForce)
+			PrimitiveComp->SetAllPhysicsLinearVelocity(InForce);
+		else
+			PrimitiveComp->AddForce(InForce);
 	}
 }
 
-void UDroneMovementComponent::ApplyTorque(const FVector& InTorque)
+void UDroneMovementComponent::ApplyTorque(const FVector& InTorque, bool InSetTorque)
 {
 	UPrimitiveComponent* PrimitiveComp = Cast<UPrimitiveComponent>(UpdatedComponent);
 	if (PrimitiveComp)
 	{
-		PrimitiveComp->AddTorqueInRadians(InTorque);
+		if (InSetTorque)
+			PrimitiveComp->SetAllPhysicsAngularVelocityInRadians(InTorque);
+		else
+			PrimitiveComp->AddTorqueInRadians(InTorque);
 	}
 }
 
 void UDroneMovementComponent::UpdateVelocity()
 {
-	Velocity = UpdatedComponent->GetComponentVelocity();
+	UPrimitiveComponent* PrimitiveComp = Cast<UPrimitiveComponent>(UpdatedComponent);
+	if (PrimitiveComp)
+	{
+		Velocity = PrimitiveComp->GetPhysicsLinearVelocity();
+		Torque = PrimitiveComp->GetPhysicsAngularVelocityInRadians();
+	}
 }
 
 void UDroneMovementComponent::UpdateSpeed()
 {
 	Speed = Velocity.Size();
-	Speed /= 100;
+	RotationSpeed = Torque.Size();
 }
 
 void UDroneMovementComponent::ResetForces()
