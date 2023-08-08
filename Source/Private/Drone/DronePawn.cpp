@@ -24,7 +24,7 @@ ADronePawn::ADronePawn()
 	DroneMesh->SetNotifyRigidBodyCollision(true);
 	DroneMesh->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
 
-	MovementComponent = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("MovementComponent"));
+	EngineComponent = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("EngineComponent"));
 	DamageHandlingComponent = CreateDefaultSubobject<UDroneDamageHandlingComponent>(TEXT("DamageHandlingComponent"));
 	EnergyComponent = CreateDefaultSubobject<UDroneEnergyComponent>(TEXT("EnergyComponent"));
 	// Set default auto possess player
@@ -37,7 +37,7 @@ void ADronePawn::BeginPlay()
 	Super::BeginPlay();
 	// This should always be true
 	DroneMesh->SetSimulatePhysics(true);
-	MovementComponent->InitializeComponent();
+	EngineComponent->InitializeComponent();
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -80,46 +80,46 @@ void ADronePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void ADronePawn::RotatePitch(const FInputActionValue& InInputActionValue)
 {
-	if (MovementComponent)
+	if (EngineComponent)
 	{
 		float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-		MovementComponent->RotatePitch(value);
+		EngineComponent->RotatePitch(value);
 	}
 }
 
 void ADronePawn::RotateRoll(const FInputActionValue& InInputActionValue)
 {
-	if (MovementComponent)
+	if (EngineComponent)
 	{
 		float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-		MovementComponent->RotateRoll(value);
+		EngineComponent->RotateRoll(value);
 	}
 }
 
 void ADronePawn::RotateYaw(const FInputActionValue& InInputActionValue)
 {
 	// Call the MoveRight function in the UDroneMovementComponent
-	if (MovementComponent)
+	if (EngineComponent)
 	{
 		float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-		MovementComponent->RotateYaw(value);
+		EngineComponent->RotateYaw(value);
 	}
 }
 
 void ADronePawn::MoveUp(const FInputActionValue& InInputActionValue)
 {
 	// Call the MoveRight function in the UDroneMovementComponent
-	if (MovementComponent)
+	if (EngineComponent)
 	{
 		float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-		MovementComponent->MoveUp(value);
+		EngineComponent->MoveUp(value);
 	}
 }
 
 void ADronePawn::StabiliseRotation(const FInputActionValue& InInputActionValue)
 {
-	if (MovementComponent)
+	if (EngineComponent)
 	{
-		MovementComponent->StabiliseRotation();
+		EngineComponent->StabiliseRotation();
 	}
 }

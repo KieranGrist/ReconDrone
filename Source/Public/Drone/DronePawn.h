@@ -24,6 +24,9 @@ public:
 	UStaticMeshComponent* DroneMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UDroneEngineComponent* EngineComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UDroneDamageHandlingComponent* DamageHandlingComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
