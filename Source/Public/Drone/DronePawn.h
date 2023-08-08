@@ -5,24 +5,29 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "InputActionValue.h"
-#include "DroneActor.generated.h"
+#include "DronePawn.generated.h"
 
-class UDroneMovementComponent;
+class UDroneEngineComponent;
+class UDroneDamageHandlingComponent;
+class UDroneEnergyComponent;
 
 UCLASS()
-class RECONDRONE_API ADroneActor : public APawn
+class RECONDRONE_API ADronePawn : public APawn
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	ADroneActor();
+	ADronePawn();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* DroneMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UDroneMovementComponent* MovementComponent;
+	UDroneDamageHandlingComponent* DamageHandlingComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UDroneEnergyComponent* EnergyComponent;
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))

@@ -3,21 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/PawnMovementComponent.h"
-#include "DroneMovementComponent.generated.h"
+#include "Components/ActorComponent.h"
+#include "DroneEngineComponent.generated.h"
 
-class ADroneActor;
+class ADronePawn;
 
 /**
  *
  */
 UCLASS()
-class RECONDRONE_API UDroneMovementComponent : public UPawnMovementComponent
+class RECONDRONE_API UDroneEngineComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
-	UDroneMovementComponent();
+	UDroneEngineComponent();
+
+	// The primitive component to apply forces and torques 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	UPrimitiveComponent* PrimitiveComponent;
 
 	// Settable properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
@@ -40,6 +44,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
 	float AngularDamping = 6;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	float EnginePower = 1;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -81,6 +88,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
 	FVector RollTorque;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	FVector Velocity;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
 	FVector Torque;
