@@ -16,7 +16,7 @@ ADronePawn::ADronePawn()
 	DroneMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DroneMesh"));
 	DroneMesh->SetCollisionProfileName("BlockAll");
 	DroneMesh->SetSimulatePhysics(true);
-	DroneMesh->SetMassOverrideInKg(NAME_None, 1);
+	DroneMesh->SetMassOverrideInKg(NAME_None, Mass);
 	DroneMesh->SetNotifyRigidBodyCollision(true);
 	DroneMesh->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
 	SetRootComponent(DroneMesh);
@@ -37,6 +37,56 @@ ADronePawn::ADronePawn()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
+float ADronePawn::GetRotationSpeed() const
+{
+	return RotationSpeed;
+}
+
+float ADronePawn::GetSpeed() const
+{
+	return Speed;
+}
+
+const FVector& ADronePawn::GetTorque() const
+{
+	return Torque;
+}
+
+float ADronePawn::GetTotalDroneMass() const
+{
+	return TotalDroneMass;
+}
+
+float ADronePawn::GetAngularDamping() const
+{
+	return AngularDamping;
+}
+
+void ADronePawn::SetAngularDamping(float InAngularDamping)
+{
+	AngularDamping = InAngularDamping;
+}
+
+float ADronePawn::GetLinearDamping() const
+{
+	return AngularDamping;
+}
+
+void ADronePawn::SetLinearDamping(float InLinearDamping)
+{
+	LinearDamping = InLinearDamping;
+}
+
+float ADronePawn::GetMass() const
+{
+	return Mass;
+}
+
+void ADronePawn::SetMass(float InMass)
+{
+	DroneMesh->SetMassOverrideInKg(NAME_None, InMass);
+}
+
 // Called when the game starts or when spawned
 void ADronePawn::BeginPlay()
 {
@@ -48,6 +98,11 @@ void ADronePawn::BeginPlay()
 	BottomLeftEngine->InitializeComponent();
 	BottomRightEngine->InitializeComponent();
 
+	DroneMesh->SetMassOverrideInKg(NAME_None, Mass);
+	DroneMesh->SetLinearDamping(LinearDamping);
+	DroneMesh->SetAngularDamping(AngularDamping);
+	BodyMass = DroneMesh->GetMass();
+
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -58,20 +113,34 @@ void ADronePawn::BeginPlay()
 	}
 }
 
-void ADronePawn::OnDroneHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	// Check if the drone collided with something
-	if (OtherActor != nullptr && OtherActor != this)
-	{
-		// Restart the level when the drone collides with something
-		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
-	}
-}
-
 // Called every frame
 void ADronePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	UpdateVelocity();
+	UpdateSpeed();
+	UpdateMass();
+}
+
+void ADronePawn::UpdateVelocity()
+{
+	Velocity = DroneMesh->GetPhysicsLinearVelocity();
+	Torque = DroneMesh->GetPhysicsAngularVelocityInRadians();
+}
+
+void ADronePawn::UpdateSpeed()
+{
+	Speed = Velocity.Size();
+	RotationSpeed = Torque.Size();
+}
+
+void ADronePawn::UpdateMass()
+{
+	TotalDroneMass = DroneMesh->GetMass() + TopLeftEngine->GetMass() + TopRightEngine->GetMass() + BottomLeftEngine->GetMass() + BottomRightEngine->GetMass();
+}
+
+void ADronePawn::OnDroneHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
 
 }
 
@@ -91,7 +160,6 @@ void ADronePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void ADronePawn::RotatePitch(const FInputActionValue& InInputActionValue)
 {
 	float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-
 }
 
 void ADronePawn::RotateRoll(const FInputActionValue& InInputActionValue)

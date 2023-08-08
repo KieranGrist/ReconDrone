@@ -20,7 +20,6 @@ void UDroneEngineComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	Hover();
 	UpdateVelocity();
 	UpdateSpeed();
-	UpdateMass();
 }
 
 void UDroneEngineComponent::InitializeComponent()
@@ -30,15 +29,18 @@ void UDroneEngineComponent::InitializeComponent()
 	SetMassOverrideInKg(NAME_None, Mass);
 	SetLinearDamping(LinearDamping);
 	SetAngularDamping(AngularDamping);
+	BodyMass = GetMass();
 }
 
 void UDroneEngineComponent::MoveUp(float InForce)
 {
 	// Cant go faster then max speed 
-	if ((GetUpVector() * Velocity).Size() >= MaxSpeed)
+	if ((GetUpVector() * Velocity).Size() >= GetMaxSpeed())
 		return;
 	UpForce = GetUpVector() * InForce * Acceleration;
+	UpForce *= BodyMass;
 	UpForce *= EnginePower;
+	
 	ApplyForce(UpForce);
 }
 
@@ -80,13 +82,108 @@ void UDroneEngineComponent::StabiliseRotation()
 	ApplyTorque(TorqueForce);
 }
 
+const FVector& UDroneEngineComponent::GetRollTorque() const
+{
+	return RollTorque;
+}
+
+const FVector& UDroneEngineComponent::GetVelocity() const
+{
+	return Velocity;
+}
+
+const FVector& UDroneEngineComponent::GetTorque() const
+{
+	return Torque;
+}
+
+float UDroneEngineComponent::GetSpeed() const
+{
+	return Speed;
+}
+
+float UDroneEngineComponent::GetRotationSpeed() const
+{
+	return RotationSpeed;
+}
+
+float UDroneEngineComponent::GetMaxSpeed() const
+{
+	return MaxSpeed;
+}
+
+void UDroneEngineComponent::SetMaxSpeed(float InMaxSpeed)
+{
+	MaxSpeed = InMaxSpeed;
+}
+
+float UDroneEngineComponent::GetAcceleration() const
+{
+	return Acceleration;
+}
+
+void UDroneEngineComponent::SetAcceleration(float InAcceleration)
+{
+	Acceleration = InAcceleration;
+}
+
+float UDroneEngineComponent::GetRotationAcceleration() const
+{
+	return RotationAcceleration;
+}
+
+void UDroneEngineComponent::SetRotationAcceleration(float InRotationAcceleration)
+{
+	RotationAcceleration = InRotationAcceleration;
+}
+
+float UDroneEngineComponent::GetEnginePower() const
+{
+	return EnginePower;
+}
+
+void UDroneEngineComponent::SetEnginePower(float InEnginePower)
+{
+	EnginePower = InEnginePower;
+}
+
+const FVector& UDroneEngineComponent::GetUpForce() const
+{
+	return UpForce;
+}
+
+const FVector& UDroneEngineComponent::GetRightForce() const
+{
+	return RightForce;
+}
+
+const FVector& UDroneEngineComponent::GetForwardForce() const
+{
+	return ForwardForce;
+}
+
+const FVector& UDroneEngineComponent::GetHoverForce() const
+{
+	return HoverForce;
+}
+
+const FVector& UDroneEngineComponent::GetYawTorque() const
+{
+	return YawTorque;
+}
+
+const FVector& UDroneEngineComponent::GetPitchTorque() const
+{
+	return PitchTorque;
+}
+
 void UDroneEngineComponent::Hover()
 {
 	FVector up_vector = GetUpVector();
 	float gravity_z = -GetWorld()->GetGravityZ();
 	HoverForce = up_vector * gravity_z;
-	// If its ever more then 1 we will constantly go up, this is bad
-	HoverForce *= FMath::Min(1.0f, EnginePower);
+	HoverForce *= BodyMass;
+	HoverForce *= EnginePower;
 	ApplyForce(HoverForce);
 }
 
@@ -115,7 +212,7 @@ void UDroneEngineComponent::UpdateVelocity()
 void UDroneEngineComponent::UpdateSpeed()
 {
 	Speed = Velocity.Size();
-	RotationSpeed = Torque.Size();
+	RotationSpeed = GetTorque().Size();
 }
 
 void UDroneEngineComponent::ResetForces()
@@ -125,9 +222,3 @@ void UDroneEngineComponent::ResetForces()
 	ForwardForce = FVector::ZeroVector;
 	HoverForce = FVector::ZeroVector;
 }
-
-void UDroneEngineComponent::UpdateMass()
-{
-	Mass = GetMass();
-}
-

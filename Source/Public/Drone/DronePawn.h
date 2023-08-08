@@ -20,62 +20,121 @@ class RECONDRONE_API ADronePawn : public APawn
 public:
 	// Sets default values for this actor's properties
 	ADronePawn();
+	UFUNCTION(BlueprintCallable)
+	float GetRotationSpeed() const;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Engine")
+	UFUNCTION(BlueprintCallable)
+	float GetSpeed() const;
+
+	UFUNCTION(BlueprintCallable)
+	const FVector& GetTorque() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetTotalDroneMass() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetAngularDamping() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetAngularDamping(float InAngularDamping);
+
+	UFUNCTION(BlueprintCallable)
+	float GetLinearDamping() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetLinearDamping(float InLinearDamping);
+
+	UFUNCTION(BlueprintCallable)
+	float GetMass() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SetMass(float InMass);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DroneEngine")
 	UDroneEngineComponent* TopLeftEngine;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Engine")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DroneEngine")
 	UDroneEngineComponent* TopRightEngine;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Engine")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DroneEngine")
 	UDroneEngineComponent* BottomLeftEngine;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Engine")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DroneEngine")
 	UDroneEngineComponent* BottomRightEngine;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePawn")
 	UStaticMeshComponent* DroneMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePawn")
 	UDroneDamageHandlingComponent* DamageHandlingComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePawn")
 	UDroneEnergyComponent* EnergyComponent;
-
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* RotatePitchAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* RotateYawAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* RotateRollAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveUpAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* StabiliseRotationAction;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	// Collision event handler
-	UFUNCTION()
-	void OnDroneHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	// Collision event handler
+	UFUNCTION()
+	void OnDroneHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 	void RotatePitch(const FInputActionValue& InInputActionValue);
 	void RotateRoll(const FInputActionValue& InInputActionValue);
 	void RotateYaw(const FInputActionValue& InInputActionValue);
 	void MoveUp(const FInputActionValue& InInputActionValue);
 	void StabiliseRotation(const FInputActionValue& InInputActionValue);
+	void UpdateVelocity();
+	void UpdateSpeed();
+	void UpdateMass();
+
+	/** MappingContext */
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputMappingContext* DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* RotatePitchAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* RotateYawAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* RotateRollAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* MoveUpAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* StabiliseRotationAction;
+
+	UPROPERTY(EditAnywhere, Category = "DronePawn")
+	float Mass = 1;
+
+	UPROPERTY(EditAnywhere, Category = "DroneEngine")
+	float BodyMass = 1;
+
+	UPROPERTY(EditAnywhere, Category = "DronePawn")
+	float LinearDamping = 6;
+
+	UPROPERTY(EditAnywhere, Category = "DronePawn")
+	float AngularDamping = 6;
+
+	UPROPERTY(VisibleAnywhere, Category = "DronePawn")
+	float TotalDroneMass = 1;
+
+	UPROPERTY(VisibleAnywhere, Category = "DronePawn|Debug")
+	FVector Velocity;
+
+	UPROPERTY(VisibleAnywhere, Category = "DronePawn|Debug")
+	FVector Torque;
+
+	UPROPERTY(VisibleAnywhere, Category = "DronePawn|Debug")
+	float Speed;
+
+	UPROPERTY(VisibleAnywhere, Category = "DronePawn|Debug")
+	float RotationSpeed;
 };
