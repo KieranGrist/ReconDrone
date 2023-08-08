@@ -27,51 +27,43 @@ void UDroneEngineComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 
-	PrimitiveComponent = GetOwner()->FindComponentByClass<UPrimitiveComponent>();
-	if (!PrimitiveComponent)
-	{
-		UE_LOG(LogTemp, Fatal, TEXT("UDroneMovementComponent::PrimitiveComponent is not set, the owner does not have a primitive component"));
-		checkNoEntry();
-		return;
-	}
-
-	PrimitiveComponent->SetMassOverrideInKg(NAME_None, Mass);
-	PrimitiveComponent->SetLinearDamping(LinearDamping);
-	PrimitiveComponent->SetAngularDamping(AngularDamping);
+	SetMassOverrideInKg(NAME_None, Mass);
+	SetLinearDamping(LinearDamping);
+	SetAngularDamping(AngularDamping);
 }
 
 void UDroneEngineComponent::MoveUp(float InForce)
 {
 	// Cant go faster then max speed 
-	if ((PrimitiveComponent->GetUpVector() * Velocity).Size() >= MaxSpeed)
+	if ((GetUpVector() * Velocity).Size() >= MaxSpeed)
 		return;
-	UpForce = PrimitiveComponent->GetUpVector() * InForce * Acceleration;
+	UpForce = GetUpVector() * InForce * Acceleration;
 	UpForce *= EnginePower;
 	ApplyForce(UpForce);
 }
 
 void UDroneEngineComponent::RotatePitch(float InForce)
 {
-	PitchTorque = PrimitiveComponent->GetRightVector() * InForce * RotationAcceleration;
+	PitchTorque = GetRightVector() * InForce * RotationAcceleration;
 	ApplyTorque(PitchTorque);
 }
 
 void UDroneEngineComponent::RotateYaw(float InForce)
 {
-	YawTorque = PrimitiveComponent->GetUpVector() * InForce * RotationAcceleration;
+	YawTorque = GetUpVector() * InForce * RotationAcceleration;
 	ApplyTorque(YawTorque);
 }
 
 void UDroneEngineComponent::RotateRoll(float InForce)
 {
-	RollTorque = PrimitiveComponent->GetForwardVector() * InForce * RotationAcceleration;
+	RollTorque = GetForwardVector() * InForce * RotationAcceleration;
 	ApplyTorque(RollTorque);
 }
 
 void UDroneEngineComponent::StabiliseRotation()
 {
 	// Get the current rotation of the drone
-	FRotator CurrentRotation = PrimitiveComponent->GetComponentRotation();
+	FRotator CurrentRotation = GetComponentRotation();
 
 	// Calculate the new rotation without pitch and roll
 	FRotator NewRotation = FRotator(0.0f, CurrentRotation.Yaw, 0.0f);
@@ -90,7 +82,7 @@ void UDroneEngineComponent::StabiliseRotation()
 
 void UDroneEngineComponent::Hover()
 {
-	FVector up_vector = PrimitiveComponent->GetUpVector();
+	FVector up_vector = GetUpVector();
 	float gravity_z = -GetWorld()->GetGravityZ();
 	HoverForce = up_vector * gravity_z;
 	// If its ever more then 1 we will constantly go up, this is bad
@@ -101,23 +93,23 @@ void UDroneEngineComponent::Hover()
 void UDroneEngineComponent::ApplyForce(const FVector& InForce, bool InSetForce)
 {
 	if (InSetForce)
-		PrimitiveComponent->SetAllPhysicsLinearVelocity(InForce);
+		SetAllPhysicsLinearVelocity(InForce);
 	else
-		PrimitiveComponent->AddForce(InForce);
+		AddForce(InForce);
 }
 
 void UDroneEngineComponent::ApplyTorque(const FVector& InTorque, bool InSetTorque)
 {
 	if (InSetTorque)
-		PrimitiveComponent->SetAllPhysicsAngularVelocityInRadians(InTorque);
+		SetAllPhysicsAngularVelocityInRadians(InTorque);
 	else
-		PrimitiveComponent->AddTorqueInRadians(InTorque);
+		AddTorqueInRadians(InTorque);
 }
 
 void UDroneEngineComponent::UpdateVelocity()
 {
-	Velocity = PrimitiveComponent->GetPhysicsLinearVelocity();
-	Torque = PrimitiveComponent->GetPhysicsAngularVelocityInRadians();
+	Velocity = GetPhysicsLinearVelocity();
+	Torque = GetPhysicsAngularVelocityInRadians();
 }
 
 void UDroneEngineComponent::UpdateSpeed()
@@ -136,6 +128,6 @@ void UDroneEngineComponent::ResetForces()
 
 void UDroneEngineComponent::UpdateMass()
 {
-	Mass = PrimitiveComponent->GetMass();
+	Mass = GetMass();
 }
 

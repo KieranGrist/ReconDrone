@@ -12,40 +12,36 @@ class ADronePawn;
  *
  */
 UCLASS()
-class RECONDRONE_API UDroneEngineComponent : public UActorComponent
+class RECONDRONE_API UDroneEngineComponent : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 
 public:
 	UDroneEngineComponent();
 
-	// The primitive component to apply forces and torques 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
-	UPrimitiveComponent* PrimitiveComponent;
-
 	// Settable properties
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	UPROPERTY(EditAnywhere,  Category = "Drone Engine")
 	float MaxSpeed = 1000.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	UPROPERTY(EditAnywhere,  Category = "Drone Engine")
 	float Acceleration = 500.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	UPROPERTY(EditAnywhere,  Category = "Drone Engine")
 	float RotationAcceleration = 500.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	UPROPERTY(EditAnywhere,  Category = "Drone Engine")
 	float Deceleration = 500.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	UPROPERTY(EditAnywhere,  Category = "Drone Engine")
 	float Mass = 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	UPROPERTY(EditAnywhere,  Category = "Drone Engine")
 	float LinearDamping = 6;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	UPROPERTY(EditAnywhere,  Category = "Drone Engine")
 	float AngularDamping = 6;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Movement")
+	UPROPERTY(EditAnywhere,  Category = "Drone Engine")
 	float EnginePower = 1;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -68,37 +64,37 @@ public:
 
 protected:
 	//Debug
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	FVector	UpForce;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	FVector RightForce;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	FVector ForwardForce;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	FVector HoverForce;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	FVector	YawTorque;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	FVector PitchTorque;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	FVector RollTorque;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	FVector Velocity;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	FVector Torque;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	float Speed;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Drone Movement|Debug")
+	UPROPERTY(VisibleAnywhere, Category = "Drone Engine|Debug")
 	float RotationSpeed;
 
 	void Hover();
