@@ -2,31 +2,37 @@
 
 
 #include "Drone/DronePawn.h"
-#include "Drone/Components/DroneEngineComponent.h"
 #include "Drone/Components/DroneDamageHandlingComponent.h"
 #include "Drone/Components/DroneEnergyComponent.h"
+#include "Drone/Components/DroneEngineComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
 
-
-
 ADronePawn::ADronePawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	RootComponent = DroneMesh;
 
 	DroneMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DroneMesh"));
-	DroneMesh->SetupAttachment(RootComponent);
 	DroneMesh->SetCollisionProfileName("BlockAll");
 	DroneMesh->SetSimulatePhysics(true);
 	DroneMesh->SetMassOverrideInKg(NAME_None, 1);
 	DroneMesh->SetNotifyRigidBodyCollision(true);
 	DroneMesh->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
+	SetRootComponent(DroneMesh);
 
-	EngineComponent = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("EngineComponent"));
 	DamageHandlingComponent = CreateDefaultSubobject<UDroneDamageHandlingComponent>(TEXT("DamageHandlingComponent"));
 	EnergyComponent = CreateDefaultSubobject<UDroneEnergyComponent>(TEXT("EnergyComponent"));
+	TopLeftEngine = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("TopLeftEngine"));
+	TopRightEngine = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("TopRightEngine"));
+	BottomLeftEngine = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("BottomLeftEngine"));
+	BottomRightEngine = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("BottomRightEngine"));
+
+	TopLeftEngine->SetupAttachment(RootComponent);
+	TopRightEngine->SetupAttachment(RootComponent);
+	BottomLeftEngine->SetupAttachment(RootComponent);
+	BottomRightEngine->SetupAttachment(RootComponent);
+
 	// Set default auto possess player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
@@ -37,7 +43,11 @@ void ADronePawn::BeginPlay()
 	Super::BeginPlay();
 	// This should always be true
 	DroneMesh->SetSimulatePhysics(true);
-	EngineComponent->InitializeComponent();
+	TopLeftEngine->InitializeComponent();
+	TopRightEngine->InitializeComponent();
+	BottomLeftEngine->InitializeComponent();
+	BottomRightEngine->InitializeComponent();
+
 	//Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -80,46 +90,33 @@ void ADronePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void ADronePawn::RotatePitch(const FInputActionValue& InInputActionValue)
 {
-	if (EngineComponent)
-	{
-		float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-		EngineComponent->RotatePitch(value);
-	}
+	float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+
 }
 
 void ADronePawn::RotateRoll(const FInputActionValue& InInputActionValue)
 {
-	if (EngineComponent)
-	{
-		float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-		EngineComponent->RotateRoll(value);
-	}
+	float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
 }
 
 void ADronePawn::RotateYaw(const FInputActionValue& InInputActionValue)
 {
-	// Call the MoveRight function in the UDroneMovementComponent
-	if (EngineComponent)
-	{
-		float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-		EngineComponent->RotateYaw(value);
-	}
+	float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
 }
 
 void ADronePawn::MoveUp(const FInputActionValue& InInputActionValue)
 {
-	// Call the MoveRight function in the UDroneMovementComponent
-	if (EngineComponent)
-	{
-		float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-		EngineComponent->MoveUp(value);
-	}
+	float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+	TopLeftEngine->MoveUp(value);
+	TopRightEngine->MoveUp(value);
+	BottomLeftEngine->MoveUp(value);
+	BottomRightEngine->MoveUp(value);
 }
 
 void ADronePawn::StabiliseRotation(const FInputActionValue& InInputActionValue)
 {
-	if (EngineComponent)
-	{
-		EngineComponent->StabiliseRotation();
-	}
+	TopLeftEngine->StabiliseRotation();
+	TopRightEngine->StabiliseRotation();
+	BottomLeftEngine->StabiliseRotation();
+	BottomRightEngine->StabiliseRotation();
 }

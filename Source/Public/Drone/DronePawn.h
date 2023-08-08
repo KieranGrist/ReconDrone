@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "InputActionValue.h"
+#include "Components/ChildActorComponent.h"
 #include "DronePawn.generated.h"
 
 class UDroneEngineComponent;
@@ -20,11 +21,20 @@ public:
 	// Sets default values for this actor's properties
 	ADronePawn();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UStaticMeshComponent* DroneMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Engine")
+	UDroneEngineComponent* TopLeftEngine;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Engine")
+	UDroneEngineComponent* TopRightEngine;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Engine")
+	UDroneEngineComponent* BottomLeftEngine;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drone Engine")
+	UDroneEngineComponent* BottomRightEngine;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UDroneEngineComponent* EngineComponent;
+	UStaticMeshComponent* DroneMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UDroneDamageHandlingComponent* DamageHandlingComponent;
