@@ -26,17 +26,6 @@ public:
 	// 1 is maximum 0 is minimum
 	void MoveUp(float InForce);
 
-	// Adjust the drones
-	void RotatePitch(float InForce);
-
-	// Adjust the drones Yaw 
-	void RotateYaw(float InForce);
-
-	// Adjust the drones Roll
-	void RotateRoll(float InForce);
-
-	void StabiliseRotation();
-
 	UFUNCTION(BlueprintCallable)
 	float GetMaxSpeed() const;
 
@@ -65,22 +54,7 @@ public:
 	const FVector& GetUpForce() const;
 
 	UFUNCTION(BlueprintCallable)
-	const FVector& GetRightForce() const;
-
-	UFUNCTION(BlueprintCallable)
-	const FVector& GetForwardForce() const;
-
-	UFUNCTION(BlueprintCallable)
 	const FVector& GetHoverForce() const;
-
-	UFUNCTION(BlueprintCallable)
-	const FVector& GetYawTorque() const;
-
-	UFUNCTION(BlueprintCallable)
-	const FVector& GetPitchTorque() const;
-
-	UFUNCTION(BlueprintCallable)
-	const FVector& GetRollTorque() const;
 
 	UFUNCTION(BlueprintCallable)
 	const FVector& GetVelocity() const;
@@ -135,22 +109,7 @@ protected:
 	FVector	UpForce;
 
 	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	FVector RightForce;
-
-	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	FVector ForwardForce;
-
-	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
 	FVector HoverForce;
-
-	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	FVector	YawTorque;
-
-	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	FVector PitchTorque;
-
-	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	FVector RollTorque;
 
 	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
 	FVector Velocity;

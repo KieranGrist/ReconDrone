@@ -37,6 +37,52 @@ ADronePawn::ADronePawn()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
+// Called when the game starts or when spawned
+void ADronePawn::BeginPlay()
+{
+	Super::BeginPlay();
+	// This should always be true
+	DroneMesh->SetSimulatePhysics(true);
+
+	TopLeftEngine->SetLinearDamping(LinearDamping);
+	TopRightEngine->SetLinearDamping(LinearDamping);
+	BottomLeftEngine->SetLinearDamping(LinearDamping);
+	BottomRightEngine->SetLinearDamping(LinearDamping);
+
+	TopLeftEngine->SetAngularDamping(AngularDamping);
+	TopRightEngine->SetAngularDamping(AngularDamping);
+	BottomLeftEngine->SetAngularDamping(AngularDamping);
+	BottomRightEngine->SetAngularDamping(AngularDamping);
+
+	TopLeftEngine->InitializeComponent();
+	TopRightEngine->InitializeComponent();
+	BottomLeftEngine->InitializeComponent();
+	BottomRightEngine->InitializeComponent();
+
+	DroneMesh->SetMassOverrideInKg(NAME_None, Mass);
+	DroneMesh->SetLinearDamping(LinearDamping);
+	DroneMesh->SetAngularDamping(AngularDamping);
+	BodyMass = DroneMesh->GetMass();
+
+	//Add Input Mapping Context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+}
+
+// Called every frame
+void ADronePawn::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	UpdateVelocity();
+	UpdateSpeed();
+	UpdateMass();
+}
+
 float ADronePawn::GetRotationSpeed() const
 {
 	return RotationSpeed;
@@ -87,41 +133,6 @@ void ADronePawn::SetMass(float InMass)
 	DroneMesh->SetMassOverrideInKg(NAME_None, InMass);
 }
 
-// Called when the game starts or when spawned
-void ADronePawn::BeginPlay()
-{
-	Super::BeginPlay();
-	// This should always be true
-	DroneMesh->SetSimulatePhysics(true);
-	TopLeftEngine->InitializeComponent();
-	TopRightEngine->InitializeComponent();
-	BottomLeftEngine->InitializeComponent();
-	BottomRightEngine->InitializeComponent();
-
-	DroneMesh->SetMassOverrideInKg(NAME_None, Mass);
-	DroneMesh->SetLinearDamping(LinearDamping);
-	DroneMesh->SetAngularDamping(AngularDamping);
-	BodyMass = DroneMesh->GetMass();
-
-	//Add Input Mapping Context
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(DefaultMappingContext, 0);
-		}
-	}
-}
-
-// Called every frame
-void ADronePawn::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	UpdateVelocity();
-	UpdateSpeed();
-	UpdateMass();
-}
-
 void ADronePawn::UpdateVelocity()
 {
 	Velocity = DroneMesh->GetPhysicsLinearVelocity();
@@ -159,22 +170,33 @@ void ADronePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void ADronePawn::RotatePitch(const FInputActionValue& InInputActionValue)
 {
-	float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+
+	if (value < 0)
+	{
+		TopLeftEngine->MoveUp(-value);
+		TopRightEngine->MoveUp(-value);
+	}
+	else
+	{
+		BottomLeftEngine->MoveUp(value);
+		BottomRightEngine->MoveUp(value);
+	}
 }
 
 void ADronePawn::RotateRoll(const FInputActionValue& InInputActionValue)
 {
-	float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
 }
 
 void ADronePawn::RotateYaw(const FInputActionValue& InInputActionValue)
 {
-	float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
 }
 
 void ADronePawn::MoveUp(const FInputActionValue& InInputActionValue)
 {
-	float  value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
 	TopLeftEngine->MoveUp(value);
 	TopRightEngine->MoveUp(value);
 	BottomLeftEngine->MoveUp(value);
@@ -183,8 +205,22 @@ void ADronePawn::MoveUp(const FInputActionValue& InInputActionValue)
 
 void ADronePawn::StabiliseRotation(const FInputActionValue& InInputActionValue)
 {
-	TopLeftEngine->StabiliseRotation();
-	TopRightEngine->StabiliseRotation();
-	BottomLeftEngine->StabiliseRotation();
-	BottomRightEngine->StabiliseRotation();
+	/*
+	// Get the current rotation of the drone
+	FRotator CurrentRotation = GetActorRotation();
+
+	// Calculate the new rotation without pitch and roll
+	FRotator NewRotation = FRotator(0.0f, CurrentRotation.Yaw, 0.0f);
+
+	// Apply a torque force to the component to make it align with the new rotation
+	FVector TorqueForce = (NewRotation - CurrentRotation).Quaternion().GetNormalized().GetRotationAxis() * RotationAcceleration;
+
+	if (CurrentRotation.Equals(NewRotation, .2))
+	{
+		GetOwner()->SetActorRotation(NewRotation);
+		ApplyTorque(FVector::ZeroVector, true);
+		return;
+	}
+	ApplyTorque(TorqueForce);
+	*/
 }

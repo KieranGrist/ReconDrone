@@ -16,7 +16,7 @@ UDroneEngineComponent::UDroneEngineComponent()
 void UDroneEngineComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	//ResetForces();
+	ResetForces();
 	Hover();
 	UpdateVelocity();
 	UpdateSpeed();
@@ -34,58 +34,16 @@ void UDroneEngineComponent::InitializeComponent()
 
 void UDroneEngineComponent::MoveUp(float InForce)
 {
+
 	// Cant go faster then max speed 
 	if ((GetUpVector() * Velocity).Size() >= GetMaxSpeed())
 		return;
 	UpForce = GetUpVector() * InForce * Acceleration;
 	UpForce *= BodyMass;
 	UpForce *= EnginePower;
-	
 	ApplyForce(UpForce);
 }
 
-void UDroneEngineComponent::RotatePitch(float InForce)
-{
-	PitchTorque = GetRightVector() * InForce * RotationAcceleration;
-	ApplyTorque(PitchTorque);
-}
-
-void UDroneEngineComponent::RotateYaw(float InForce)
-{
-	YawTorque = GetUpVector() * InForce * RotationAcceleration;
-	ApplyTorque(YawTorque);
-}
-
-void UDroneEngineComponent::RotateRoll(float InForce)
-{
-	RollTorque = GetForwardVector() * InForce * RotationAcceleration;
-	ApplyTorque(RollTorque);
-}
-
-void UDroneEngineComponent::StabiliseRotation()
-{
-	// Get the current rotation of the drone
-	FRotator CurrentRotation = GetComponentRotation();
-
-	// Calculate the new rotation without pitch and roll
-	FRotator NewRotation = FRotator(0.0f, CurrentRotation.Yaw, 0.0f);
-
-	// Apply a torque force to the component to make it align with the new rotation
-	FVector TorqueForce = (NewRotation - CurrentRotation).Quaternion().GetNormalized().GetRotationAxis() * RotationAcceleration;
-
-	if (CurrentRotation.Equals(NewRotation, .2))
-	{
-		GetOwner()->SetActorRotation(NewRotation);
-		ApplyTorque(FVector::ZeroVector, true);
-		return;
-	}
-	ApplyTorque(TorqueForce);
-}
-
-const FVector& UDroneEngineComponent::GetRollTorque() const
-{
-	return RollTorque;
-}
 
 const FVector& UDroneEngineComponent::GetVelocity() const
 {
@@ -152,29 +110,9 @@ const FVector& UDroneEngineComponent::GetUpForce() const
 	return UpForce;
 }
 
-const FVector& UDroneEngineComponent::GetRightForce() const
-{
-	return RightForce;
-}
-
-const FVector& UDroneEngineComponent::GetForwardForce() const
-{
-	return ForwardForce;
-}
-
 const FVector& UDroneEngineComponent::GetHoverForce() const
 {
 	return HoverForce;
-}
-
-const FVector& UDroneEngineComponent::GetYawTorque() const
-{
-	return YawTorque;
-}
-
-const FVector& UDroneEngineComponent::GetPitchTorque() const
-{
-	return PitchTorque;
 }
 
 void UDroneEngineComponent::Hover()
@@ -218,7 +156,5 @@ void UDroneEngineComponent::UpdateSpeed()
 void UDroneEngineComponent::ResetForces()
 {
 	UpForce = FVector::ZeroVector;
-	RightForce = FVector::ZeroVector;
-	ForwardForce = FVector::ZeroVector;
 	HoverForce = FVector::ZeroVector;
 }
