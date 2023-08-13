@@ -76,3 +76,5 @@ DerivedDataCache/*
 enc_temp_folder
 
 UnrealEngine/
+.vsconfig
+*.sln
