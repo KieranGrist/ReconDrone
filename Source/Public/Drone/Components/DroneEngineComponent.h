@@ -27,22 +27,10 @@ public:
 	void MoveUp(float InForce);
 
 	UFUNCTION(BlueprintCallable)
-	float GetMaxSpeed() const;
-
-	UFUNCTION(BlueprintCallable)
-	void SetMaxSpeed(float InMaxSpeed);
-
-	UFUNCTION(BlueprintCallable)
 	float GetAcceleration() const;
 
 	UFUNCTION(BlueprintCallable)
 	void SetAcceleration(float InAcceleration);
-
-	UFUNCTION(BlueprintCallable)
-	float GetRotationAcceleration() const;
-
-	UFUNCTION(BlueprintCallable)
-	void SetRotationAcceleration(float InRotationAcceleration);
 
 	UFUNCTION(BlueprintCallable)
 	float GetEnginePower() const;
@@ -55,39 +43,20 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	const FVector& GetHoverForce() const;
-
-	UFUNCTION(BlueprintCallable)
-	const FVector& GetVelocity() const;
-
-	UFUNCTION(BlueprintCallable)
-	const FVector& GetTorque() const;
-
-	UFUNCTION(BlueprintCallable)
-	float GetSpeed() const;
-
-	UFUNCTION(BlueprintCallable)
-	float GetRotationSpeed() const;
-
 protected:
+	UFUNCTION()
 	void Hover();
-	void ApplyForce(const FVector& InForce, bool InAccelerationChange = false);
-	void ApplyTorque(const FVector& InTorque, bool InAccelerationChange = false);
-	void UpdateVelocity();
-	void UpdateSpeed();
+
+	UFUNCTION()
+	void ApplyForce(const FVector& InForce);
+
+	UFUNCTION()
 	void ResetForces();
 
-	// Settable properties
-	UPROPERTY(EditAnywhere, Category = "DroneEngine")
-	float MaxSpeed = 1000.0f;
+	FTimerHandle ResetForcesTimer;
 
 	UPROPERTY(EditAnywhere, Category = "DroneEngine")
 	float Acceleration = 500.0f;
-
-	UPROPERTY(EditAnywhere, Category = "DroneEngine")
-	float RotationAcceleration = 500.0f;
-
-	UPROPERTY(EditAnywhere, Category = "DroneEngine")
-	float Deceleration = 500.0f;
 
 	UPROPERTY(EditAnywhere, Category = "DroneEngine")
 	float Mass = 1;
@@ -96,30 +65,12 @@ protected:
 	float BodyMass = 1;
 
 	UPROPERTY(EditAnywhere, Category = "DroneEngine")
-	float LinearDamping = 6;
-
-	UPROPERTY(EditAnywhere, Category = "DroneEngine")
-	float AngularDamping = 6;
-
-	UPROPERTY(EditAnywhere, Category = "DroneEngine")
 	float EnginePower = 1;
 
 	//Debug Properties
 	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	FVector	UpForce;
+	FVector	EngineForce;
 
 	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
 	FVector HoverForce;
-
-	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	FVector Velocity;
-
-	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	FVector Torque;
-
-	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	float Speed;
-
-	UPROPERTY(VisibleAnywhere, Category = "DroneEngine|Debug")
-	float RotationSpeed;
 };

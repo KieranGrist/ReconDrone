@@ -18,7 +18,6 @@ ADronePawn::ADronePawn()
 	DroneMesh->SetSimulatePhysics(true);
 	DroneMesh->SetMassOverrideInKg(NAME_None, Mass);
 	DroneMesh->SetNotifyRigidBodyCollision(true);
-	DroneMesh->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
 	SetRootComponent(DroneMesh);
 
 	DamageHandlingComponent = CreateDefaultSubobject<UDroneDamageHandlingComponent>(TEXT("DamageHandlingComponent"));
@@ -32,6 +31,14 @@ ADronePawn::ADronePawn()
 	TopRightEngine->SetupAttachment(RootComponent);
 	BottomLeftEngine->SetupAttachment(RootComponent);
 	BottomRightEngine->SetupAttachment(RootComponent);
+
+	DroneMesh->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
+	TopLeftEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
+	TopRightEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
+	BottomLeftEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
+	BottomRightEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
+
+
 
 	// Set default auto possess player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -133,6 +140,11 @@ void ADronePawn::SetMass(float InMass)
 	DroneMesh->SetMassOverrideInKg(NAME_None, InMass);
 }
 
+float ADronePawn::GetUnitMultiplier() const
+{
+	return UnitMultiplier;
+}
+
 void ADronePawn::UpdateVelocity()
 {
 	Velocity = DroneMesh->GetPhysicsLinearVelocity();
@@ -176,22 +188,43 @@ void ADronePawn::RotatePitch(const FInputActionValue& InInputActionValue)
 	{
 		TopLeftEngine->MoveUp(-value);
 		TopRightEngine->MoveUp(-value);
+		BottomLeftEngine->MoveUp(value);
+		BottomRightEngine->MoveUp(value);
 	}
 	else
 	{
 		BottomLeftEngine->MoveUp(value);
 		BottomRightEngine->MoveUp(value);
+		TopLeftEngine->MoveUp(-value);
+		TopRightEngine->MoveUp(-value);
 	}
 }
 
 void ADronePawn::RotateRoll(const FInputActionValue& InInputActionValue)
 {
 	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+	if (value < 0)
+	{
+		TopLeftEngine->MoveUp(-value);
+		BottomLeftEngine->MoveUp(-value);
+	}
+	else
+	{
+		TopRightEngine->MoveUp(value);
+		BottomRightEngine->MoveUp(value);
+	}
+
 }
 
 void ADronePawn::RotateYaw(const FInputActionValue& InInputActionValue)
 {
 	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
+
+		TopLeftEngine->MoveUp(value);
+		BottomRightEngine->MoveUp(value);
+		TopRightEngine->MoveUp(-value);
+		BottomLeftEngine->MoveUp(-value);
+
 }
 
 void ADronePawn::MoveUp(const FInputActionValue& InInputActionValue)
