@@ -116,6 +116,20 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* StabiliseRotationAction;
 
+
+	UPROPERTY(EditAnywhere, Category = "DroneEngine")
+	float Acceleration = 500.0f;
+
+	UPROPERTY(EditAnywhere, Category = "DroneEngine")
+	float Mass = 1;
+
+	UPROPERTY(EditAnywhere, Category = "DroneEngine")
+	float BodyMass = 1;
+
+	UPROPERTY(EditAnywhere, Category = "DroneEngine")
+	float EnginePower = 1;
+
+
 	UPROPERTY(EditAnywhere, Category = "DronePawn")
 	float Mass = 1;
 
