@@ -8,18 +8,12 @@
 UDroneEngineComponent::UDroneEngineComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	MaxSpeed = 1000.0f;
-	Acceleration = 500.0f;
-	Deceleration = 500.0f;
 }
 
 void UDroneEngineComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	ResetForces();
 	Hover();
-	UpdateVelocity();
-	UpdateSpeed();
 }
 
 void UDroneEngineComponent::InitializeComponent()
@@ -27,52 +21,16 @@ void UDroneEngineComponent::InitializeComponent()
 	Super::InitializeComponent();
 
 	SetMassOverrideInKg(NAME_None, Mass);
-	SetLinearDamping(LinearDamping);
-	SetAngularDamping(AngularDamping);
 	BodyMass = GetMass();
 }
 
 void UDroneEngineComponent::MoveUp(float InForce)
 {
-
-	// Cant go faster then max speed 
-	if ((GetUpVector() * Velocity).Size() >= GetMaxSpeed())
-		return;
-	UpForce = GetUpVector() * InForce * Acceleration;
-	UpForce *= BodyMass;
-	UpForce *= EnginePower;
-	ApplyForce(UpForce);
-}
-
-
-const FVector& UDroneEngineComponent::GetVelocity() const
-{
-	return Velocity;
-}
-
-const FVector& UDroneEngineComponent::GetTorque() const
-{
-	return Torque;
-}
-
-float UDroneEngineComponent::GetSpeed() const
-{
-	return Speed;
-}
-
-float UDroneEngineComponent::GetRotationSpeed() const
-{
-	return RotationSpeed;
-}
-
-float UDroneEngineComponent::GetMaxSpeed() const
-{
-	return MaxSpeed;
-}
-
-void UDroneEngineComponent::SetMaxSpeed(float InMaxSpeed)
-{
-	MaxSpeed = InMaxSpeed;
+	EngineForce = GetUpVector() * InForce * Acceleration;
+	EngineForce *= BodyMass;
+	EngineForce *= EnginePower;
+	ApplyForce(EngineForce);
+	GetWorld()->GetTimerManager().SetTimer(ResetForcesTimer, this, &UDroneEngineComponent::ResetForces, 0.4f, false);
 }
 
 float UDroneEngineComponent::GetAcceleration() const
@@ -83,16 +41,6 @@ float UDroneEngineComponent::GetAcceleration() const
 void UDroneEngineComponent::SetAcceleration(float InAcceleration)
 {
 	Acceleration = InAcceleration;
-}
-
-float UDroneEngineComponent::GetRotationAcceleration() const
-{
-	return RotationAcceleration;
-}
-
-void UDroneEngineComponent::SetRotationAcceleration(float InRotationAcceleration)
-{
-	RotationAcceleration = InRotationAcceleration;
 }
 
 float UDroneEngineComponent::GetEnginePower() const
@@ -107,7 +55,7 @@ void UDroneEngineComponent::SetEnginePower(float InEnginePower)
 
 const FVector& UDroneEngineComponent::GetUpForce() const
 {
-	return UpForce;
+	return EngineForce;
 }
 
 const FVector& UDroneEngineComponent::GetHoverForce() const
@@ -125,36 +73,19 @@ void UDroneEngineComponent::Hover()
 	ApplyForce(HoverForce);
 }
 
-void UDroneEngineComponent::ApplyForce(const FVector& InForce, bool InSetForce)
+void UDroneEngineComponent::ApplyForce(const FVector& InForce)
 {
-	if (InSetForce)
-		SetAllPhysicsLinearVelocity(InForce);
+	// this component is usually a child of drone_mesh, lets see if we can get it
+	UStaticMeshComponent* drone_mesh = Cast<UStaticMeshComponent>(GetAttachParent());
+	if (drone_mesh)
+		drone_mesh->AddForceAtLocation(InForce, GetComponentLocation());
 	else
 		AddForce(InForce);
 }
 
-void UDroneEngineComponent::ApplyTorque(const FVector& InTorque, bool InSetTorque)
-{
-	if (InSetTorque)
-		SetAllPhysicsAngularVelocityInRadians(InTorque);
-	else
-		AddTorqueInRadians(InTorque);
-}
-
-void UDroneEngineComponent::UpdateVelocity()
-{
-	Velocity = GetPhysicsLinearVelocity();
-	Torque = GetPhysicsAngularVelocityInRadians();
-}
-
-void UDroneEngineComponent::UpdateSpeed()
-{
-	Speed = Velocity.Size();
-	RotationSpeed = GetTorque().Size();
-}
 
 void UDroneEngineComponent::ResetForces()
 {
-	UpForce = FVector::ZeroVector;
+	EngineForce = FVector::ZeroVector;
 	HoverForce = FVector::ZeroVector;
 }
