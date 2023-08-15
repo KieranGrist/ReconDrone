@@ -38,8 +38,6 @@ ADronePawn::ADronePawn()
 	BottomLeftEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
 	BottomRightEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
 
-
-
 	// Set default auto possess player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
