@@ -205,9 +205,12 @@ void ADronePawn::RotateRoll(const FInputActionValue& InInputActionValue)
 	{
 		TopLeftEngine->MoveUp(-value);
 		BottomLeftEngine->MoveUp(-value);
+		TopRightEngine->MoveUp(value);
+		BottomRightEngine->MoveUp(value);
 	}
 	else
-	{
+	{	TopLeftEngine->MoveUp(-value);
+		BottomLeftEngine->MoveUp(-value);
 		TopRightEngine->MoveUp(value);
 		BottomRightEngine->MoveUp(value);
 	}
@@ -217,12 +220,20 @@ void ADronePawn::RotateRoll(const FInputActionValue& InInputActionValue)
 void ADronePawn::RotateYaw(const FInputActionValue& InInputActionValue)
 {
 	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-
+	if (value < 0)
+	{
+		TopLeftEngine->MoveUp(-value);
+		BottomRightEngine->MoveUp(-value);
+		TopRightEngine->MoveUp(value);
+		BottomLeftEngine->MoveUp(value);
+	}
+	else
+	{
 		TopLeftEngine->MoveUp(value);
 		BottomRightEngine->MoveUp(value);
 		TopRightEngine->MoveUp(-value);
 		BottomLeftEngine->MoveUp(-value);
-
+	}
 }
 
 void ADronePawn::MoveUp(const FInputActionValue& InInputActionValue)
