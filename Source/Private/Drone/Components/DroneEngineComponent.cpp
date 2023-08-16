@@ -19,7 +19,6 @@ void UDroneEngineComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 void UDroneEngineComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
-
 	SetMassOverrideInKg(NAME_None, Mass);
 	BodyMass = GetMass();
 }
