@@ -25,7 +25,8 @@ void UDroneEngineComponent::InitializeComponent()
 
 void UDroneEngineComponent::MoveUp(float InForce)
 {
-	EngineForce = GetUpVector() * InForce * Acceleration;
+	EngineForce = GetUpVector() * InForce;
+	EngineForce *= Acceleration;
 	EngineForce *= BodyMass;
 	EngineForce *= EnginePower;
 	ApplyForce(EngineForce);

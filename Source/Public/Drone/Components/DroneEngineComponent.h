@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "DroneEngineComponent.generated.h"
 
 class ADronePawn;
@@ -23,7 +23,6 @@ public:
 
 	virtual void InitializeComponent() override;
 
-	// 1 is maximum 0 is minimum
 	void MoveUp(float InForce);
 
 	UFUNCTION(BlueprintCallable)

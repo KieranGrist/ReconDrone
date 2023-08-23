@@ -11,6 +11,7 @@
 class UDroneEngineComponent;
 class UDroneDamageHandlingComponent;
 class UDroneEnergyComponent;
+class UDronePropellerComponent;
 
 UCLASS()
 class RECONDRONE_API ADronePawn : public APawn
@@ -21,7 +22,6 @@ public:
 	// Sets default values for this actor's properties
 	ADronePawn();
 
-
 	UFUNCTION(BlueprintCallable)
 	float GetRotationSpeed() const;
 
@@ -30,9 +30,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	const FVector& GetTorque() const;
-
-	UFUNCTION(BlueprintCallable)
-	float GetTotalDroneMass() const;
 
 	UFUNCTION(BlueprintCallable)
 	float GetAngularDamping() const;
@@ -55,17 +52,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetUnitMultiplier() const;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DroneEngine")
-	UDroneEngineComponent* TopLeftEngine;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DroneEngine")
-	UDroneEngineComponent* TopRightEngine;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DroneEngine")
-	UDroneEngineComponent* BottomLeftEngine;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DroneEngine")
-	UDroneEngineComponent* BottomRightEngine;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePawn")
+	UDronePropellerComponent* MainDronePropeller;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePawn")
 	UStaticMeshComponent* DroneMesh;
@@ -95,7 +83,6 @@ protected:
 	void StabiliseRotation(const FInputActionValue& InInputActionValue);
 	void UpdateVelocity();
 	void UpdateSpeed();
-	void UpdateMass();
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -130,9 +117,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "DronePawn")
 	float AngularDamping = 6;
-
-	UPROPERTY(VisibleAnywhere, Category = "DronePawn")
-	float TotalDroneMass = 1;
 
 	UPROPERTY(VisibleAnywhere, Category = "DronePawn|Debug")
 	FVector Velocity;

@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
+#include "Drone/Components/DronePropellerComponent.h"
 
 ADronePawn::ADronePawn()
 {
@@ -22,21 +23,12 @@ ADronePawn::ADronePawn()
 
 	DamageHandlingComponent = CreateDefaultSubobject<UDroneDamageHandlingComponent>(TEXT("DamageHandlingComponent"));
 	EnergyComponent = CreateDefaultSubobject<UDroneEnergyComponent>(TEXT("EnergyComponent"));
-	TopLeftEngine = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("TopLeftEngine"));
-	TopRightEngine = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("TopRightEngine"));
-	BottomLeftEngine = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("BottomLeftEngine"));
-	BottomRightEngine = CreateDefaultSubobject<UDroneEngineComponent>(TEXT("BottomRightEngine"));
+	MainDronePropeller = CreateDefaultSubobject<UDronePropellerComponent>(TEXT("MainDronePropeller"));
 
-	TopLeftEngine->SetupAttachment(RootComponent);
-	TopRightEngine->SetupAttachment(RootComponent);
-	BottomLeftEngine->SetupAttachment(RootComponent);
-	BottomRightEngine->SetupAttachment(RootComponent);
+	MainDronePropeller->SetupAttachment(RootComponent);
 
 	DroneMesh->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
-	TopLeftEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
-	TopRightEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
-	BottomLeftEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
-	BottomRightEngine->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
+	MainDronePropeller->OnComponentHit.AddUniqueDynamic(this, &ADronePawn::OnDroneHit);
 
 	// Set default auto possess player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
@@ -49,20 +41,9 @@ void ADronePawn::BeginPlay()
 	// This should always be true
 	DroneMesh->SetSimulatePhysics(true);
 
-	TopLeftEngine->SetLinearDamping(LinearDamping);
-	TopRightEngine->SetLinearDamping(LinearDamping);
-	BottomLeftEngine->SetLinearDamping(LinearDamping);
-	BottomRightEngine->SetLinearDamping(LinearDamping);
-
-	TopLeftEngine->SetAngularDamping(AngularDamping);
-	TopRightEngine->SetAngularDamping(AngularDamping);
-	BottomLeftEngine->SetAngularDamping(AngularDamping);
-	BottomRightEngine->SetAngularDamping(AngularDamping);
-
-	TopLeftEngine->InitializeComponent();
-	TopRightEngine->InitializeComponent();
-	BottomLeftEngine->InitializeComponent();
-	BottomRightEngine->InitializeComponent();
+	MainDronePropeller->SetLinearDamping(LinearDamping);
+	MainDronePropeller->SetAngularDamping(AngularDamping);
+	MainDronePropeller->InitializeComponent();
 
 	DroneMesh->SetMassOverrideInKg(NAME_None, Mass);
 	DroneMesh->SetLinearDamping(LinearDamping);
@@ -85,7 +66,6 @@ void ADronePawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	UpdateVelocity();
 	UpdateSpeed();
-	UpdateMass();
 }
 
 float ADronePawn::GetRotationSpeed() const
@@ -101,11 +81,6 @@ float ADronePawn::GetSpeed() const
 const FVector& ADronePawn::GetTorque() const
 {
 	return Torque;
-}
-
-float ADronePawn::GetTotalDroneMass() const
-{
-	return TotalDroneMass;
 }
 
 float ADronePawn::GetAngularDamping() const
@@ -155,11 +130,6 @@ void ADronePawn::UpdateSpeed()
 	RotationSpeed = Torque.Size();
 }
 
-void ADronePawn::UpdateMass()
-{
-	TotalDroneMass = DroneMesh->GetMass() + TopLeftEngine->GetMass() + TopRightEngine->GetMass() + BottomLeftEngine->GetMass() + BottomRightEngine->GetMass();
-}
-
 void ADronePawn::OnDroneHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 
@@ -184,17 +154,11 @@ void ADronePawn::RotatePitch(const FInputActionValue& InInputActionValue)
 
 	if (value < 0)
 	{
-		TopLeftEngine->MoveUp(-value);
-		TopRightEngine->MoveUp(-value);
-		BottomLeftEngine->MoveUp(value);
-		BottomRightEngine->MoveUp(value);
+
 	}
 	else
 	{
-		BottomLeftEngine->MoveUp(value);
-		BottomRightEngine->MoveUp(value);
-		TopLeftEngine->MoveUp(-value);
-		TopRightEngine->MoveUp(-value);
+
 	}
 }
 
@@ -203,16 +167,11 @@ void ADronePawn::RotateRoll(const FInputActionValue& InInputActionValue)
 	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
 	if (value < 0)
 	{
-		TopLeftEngine->MoveUp(-value);
-		BottomLeftEngine->MoveUp(-value);
-		TopRightEngine->MoveUp(value);
-		BottomRightEngine->MoveUp(value);
+
 	}
 	else
-	{	TopLeftEngine->MoveUp(-value);
-		BottomLeftEngine->MoveUp(-value);
-		TopRightEngine->MoveUp(value);
-		BottomRightEngine->MoveUp(value);
+	{
+
 	}
 
 }
@@ -222,27 +181,18 @@ void ADronePawn::RotateYaw(const FInputActionValue& InInputActionValue)
 	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
 	if (value < 0)
 	{
-		TopLeftEngine->MoveUp(-value);
-		BottomRightEngine->MoveUp(-value);
-		TopRightEngine->MoveUp(value);
-		BottomLeftEngine->MoveUp(value);
+
 	}
 	else
 	{
-		TopLeftEngine->MoveUp(value);
-		BottomRightEngine->MoveUp(value);
-		TopRightEngine->MoveUp(-value);
-		BottomLeftEngine->MoveUp(-value);
+
 	}
 }
 
 void ADronePawn::MoveUp(const FInputActionValue& InInputActionValue)
 {
 	float value = InInputActionValue.Get<FInputActionValue::Axis1D>();
-	TopLeftEngine->MoveUp(value);
-	TopRightEngine->MoveUp(value);
-	BottomLeftEngine->MoveUp(value);
-	BottomRightEngine->MoveUp(value);
+	MainDronePropeller->MoveUp(value);
 }
 
 void ADronePawn::StabiliseRotation(const FInputActionValue& InInputActionValue)
