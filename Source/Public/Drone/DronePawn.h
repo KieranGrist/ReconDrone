@@ -5,13 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "InputActionValue.h"
-#include "Components/ChildActorComponent.h"
 #include "DronePawn.generated.h"
 
-class UDroneEngineComponent;
+class UDronePropellerComponent;
 class UDroneDamageHandlingComponent;
 class UDroneEnergyComponent;
-class UDronePropellerComponent;
 
 UCLASS()
 class RECONDRONE_API ADronePawn : public APawn
@@ -22,6 +20,7 @@ public:
 	// Sets default values for this actor's properties
 	ADronePawn();
 
+
 	UFUNCTION(BlueprintCallable)
 	float GetRotationSpeed() const;
 
@@ -30,6 +29,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	const FVector& GetTorque() const;
+
+	UFUNCTION(BlueprintCallable)
+	float GetTotalDroneMass() const;
 
 	UFUNCTION(BlueprintCallable)
 	float GetAngularDamping() const;
@@ -52,8 +54,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetUnitMultiplier() const;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePawn")
-	UDronePropellerComponent* MainDronePropeller;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePropeller")
+	UDronePropellerComponent* TopLeftPropeller;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePropeller")
+	UDronePropellerComponent* TopRightPropeller;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePropeller")
+	UDronePropellerComponent* BottomLeftPropeller;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePropeller")
+	UDronePropellerComponent* BottomRightPropeller;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DronePawn")
 	UStaticMeshComponent* DroneMesh;
@@ -83,6 +94,7 @@ protected:
 	void StabiliseRotation(const FInputActionValue& InInputActionValue);
 	void UpdateVelocity();
 	void UpdateSpeed();
+	void UpdateMass();
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -109,7 +121,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "DronePawn")
 	float UnitMultiplier = 1;
 
-	UPROPERTY(EditAnywhere, Category = "DroneEngine")
+	UPROPERTY(EditAnywhere, Category = "DronePropeller")
 	float BodyMass = 1;
 
 	UPROPERTY(EditAnywhere, Category = "DronePawn")
@@ -117,6 +129,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "DronePawn")
 	float AngularDamping = 6;
+
+	UPROPERTY(VisibleAnywhere, Category = "DronePawn")
+	float TotalDroneMass = 1;
 
 	UPROPERTY(VisibleAnywhere, Category = "DronePawn|Debug")
 	FVector Velocity;

@@ -31,16 +31,29 @@ public:
 
 	void MoveUp(float InForce);
 protected:
-	void ApplyTorque(const FVector& InTorque);
+	void ApplyForce(const FVector& InForce);
+	void Hover();
 
 	UPROPERTY(EditAnywhere, Category="DronePropeller")
 	float PropellorPower;
 
 	UPROPERTY(EditAnywhere, Category="DronePropeller")
-	float TorqueAcceleration;
+	float PropellorAcceleration;
 
 	UPROPERTY(EditAnywhere, Category="DronePropeller")
 	float PropellorMass = 1;
+
+	UPROPERTY(EditAnywhere, Category = "DronePropeller")
+	float RotationSpeed = 100;
+
+	UPROPERTY(EditAnywhere, Category = "DronePropeller")
+	float RotationAcceleration = 1;
+
+	UPROPERTY(EditAnywhere, Category = "DronePropeller")
+	float CurrentRotationSpeed = 0;
+	
+	UPROPERTY(EditAnywhere, Category = "DronePropeller")
+	float RotationPercentage = 0;
 
 	UPROPERTY(EditAnywhere, Category="DronePropeller")
 	bool Clockwise = true;

@@ -18,12 +18,29 @@ void UDronePropellerComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	Torque = GetPhysicsAngularVelocityInRadians();
+	CurrentRotationSpeed += DeltaTime * RotationAcceleration;
+	CurrentRotationSpeed = FMath::Min(RotationSpeed, CurrentRotationSpeed);
+	RotationPercentage = CurrentRotationSpeed / RotationSpeed;
+
+	AddLocalRotation(FRotator(0, CurrentRotationSpeed, 0));
+	Hover();
 }
 
 void UDronePropellerComponent::InitializeComponent()
 {
-	SetSimulatePhysics(true);
+	SetSimulatePhysics(false);
 	SetMassOverrideInKg(NAME_None, PropellorMass);
+}
+
+void UDronePropellerComponent::Hover()
+{
+	FVector up_vector = GetUpVector();
+	float gravity_z = -GetWorld()->GetGravityZ();
+	FVector HoverForce = up_vector * gravity_z;
+	HoverForce *= GetMass();
+	HoverForce *= PropellorPower;
+	HoverForce *= RotationPercentage;
+	ApplyForce(HoverForce);
 }
 
 void UDronePropellerComponent::MoveUp(float InForce)
@@ -45,14 +62,21 @@ void UDronePropellerComponent::MoveUp(float InForce)
 	}
 	PropellerTorque = FVector::ZeroVector;
 	PropellerTorque = direction_vector * InForce;
-	PropellerTorque *= TorqueAcceleration;
+	PropellerTorque *= PropellorAcceleration;
 	PropellerTorque *= GetMass();
 	PropellerTorque *= PropellorPower;
-	ApplyTorque(PropellerTorque);
+	PropellerTorque *= RotationPercentage;
+	ApplyForce(PropellerTorque);
 }
 
-void UDronePropellerComponent::ApplyTorque(const FVector& InTorque)
+
+
+void UDronePropellerComponent::ApplyForce(const FVector& InForce)
 {
-	AddAngularImpulseInRadians(InTorque);
+	// this component is usually a child of drone_mesh, lets see if we can get it
+	UStaticMeshComponent* drone_mesh = Cast<UStaticMeshComponent>(GetAttachParent());
+	if (drone_mesh)
+		drone_mesh->AddForceAtLocation(InForce, GetComponentLocation());
+	else
+		AddForce(InForce);
 }
-
